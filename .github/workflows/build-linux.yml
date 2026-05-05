@@ -67,7 +67,10 @@ jobs:
 
       - name: Tauri build (.deb solamente)
         env:
-          ARKA_LICENSE_SECRET: ${{ secrets.ARKA_LICENSE_SECRET }}
+          # ARKA_LICENSE_PUBKEY (Ed25519 v2) reemplazó al viejo
+          # ARKA_LICENSE_SECRET (HMAC v1). build.rs panicea si no está
+          # definido en perfil release.
+          ARKA_LICENSE_PUBKEY: ${{ secrets.ARKA_LICENSE_PUBKEY }}
           # Tauri exige la privada porque tauri.conf.json declara la pubkey
           # del updater. Igualmente firma el .deb (no usamos el .sig en
           # latest.json — el .deb queda solo para descarga manual).

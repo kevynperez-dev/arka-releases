@@ -51,7 +51,10 @@ jobs:
 
       - name: Tauri build (firmado)
         env:
-          ARKA_LICENSE_SECRET: ${{ secrets.ARKA_LICENSE_SECRET }}
+          # ARKA_LICENSE_PUBKEY (Ed25519 v2) reemplazó al viejo
+          # ARKA_LICENSE_SECRET (HMAC v1). build.rs panicea si no está
+          # definido en perfil release.
+          ARKA_LICENSE_PUBKEY: ${{ secrets.ARKA_LICENSE_PUBKEY }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri -- build --target x86_64-pc-windows-msvc
