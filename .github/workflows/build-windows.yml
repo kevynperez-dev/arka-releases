@@ -1,20 +1,20 @@
 name: Build Windows
 
 # Trigger manual desde:
-#   gh workflow run build-windows.yml -f tag=v1.2.7 --repo kevynperez/arka-releases
+#   gh workflow run build-windows.yml -f tag=v1.2.7 --repo kevynperez-dev/arka-releases
 # o desde la UI (Actions → Build Windows → Run workflow).
 #
 # Builda Arka para Windows x86_64 a partir del tag indicado del repo
-# privado kevynperez/Arka, firma el .exe con la llave del updater, y
+# privado kevynperez-dev/Arka, firma el .exe con la llave del updater, y
 # mergea la entry windows-x86_64 en el release ya existente en este repo.
 #
-# Asume que el tag ya existe en kevynperez/Arka y que el flujo Mac
+# Asume que el tag ya existe en kevynperez-dev/Arka y que el flujo Mac
 # (`bash scripts/ship.sh && npm run release:gh`) ya creó el release.
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag a buildear (ej. v1.2.7) — debe existir ya en kevynperez/Arka"
+        description: "Tag a buildear (ej. v1.2.7) — debe existir ya en kevynperez-dev/Arka"
         required: true
         type: string
 
@@ -29,7 +29,7 @@ jobs:
       - name: Checkout private Arka source at tag
         uses: actions/checkout@v6
         with:
-          repository: kevynperez/Arka
+          repository: kevynperez-dev/Arka
           token: ${{ secrets.ARKA_PRIVATE_REPO_PAT }}
           ref: ${{ inputs.tag }}
 

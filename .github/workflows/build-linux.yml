@@ -1,7 +1,7 @@
 name: Build Linux
 
 # Trigger manual desde:
-#   gh workflow run build-linux.yml -f tag=v1.2.7 --repo kevynperez/arka-releases
+#   gh workflow run build-linux.yml -f tag=v1.2.7 --repo kevynperez-dev/arka-releases
 #
 # Builda Arka para Linux x86_64 SOLO en formato `.deb` (Debian/Ubuntu).
 # El AppImage está deshabilitado a propósito: pesaba ~78 MB porque empaca
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag a buildear (ej. v1.2.7) — debe existir ya en kevynperez/Arka"
+        description: "Tag a buildear (ej. v1.2.7) — debe existir ya en kevynperez-dev/Arka"
         required: true
         type: string
 
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout private Arka source at tag
         uses: actions/checkout@v6
         with:
-          repository: kevynperez/Arka
+          repository: kevynperez-dev/Arka
           token: ${{ secrets.ARKA_PRIVATE_REPO_PAT }}
           ref: ${{ inputs.tag }}
 
