@@ -8,6 +8,9 @@ name: Build Linux
 # WebKitGTK + GTK + libsoup completos. El `.deb` pesa ~10 MB porque declara
 # `libwebkit2gtk-4.1-0` como dependencia y `apt` la resuelve del sistema.
 #
+# Asume que el tag ya existe en kevynperez-dev/Arka. Crea el release en
+# este repo si no existe todavía y luego sube el .deb.
+#
 # Trade-off: los clientes Linux instalan manualmente con `sudo dpkg -i ...`
 # o `sudo apt install ./arka.deb` y NO reciben auto-update. Para auto-update
 # tendrían que usar el AppImage; cuando aparezca un cliente que lo justifique,
@@ -92,6 +95,23 @@ jobs:
           fi
           echo "deb=$DEB" >> "$GITHUB_OUTPUT"
           echo "deb_name=$(basename "$DEB")" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.tag }}"
+          REPO="${{ github.repository }}"
+          if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            echo "→ Release $TAG ya existe"
+          else
+            echo "→ Release $TAG no existe → lo creo (tag creado automáticamente en $REPO)"
+            gh release create "$TAG" --repo "$REPO" --title "Arka $TAG" --notes "Arka $TAG" --target main \
+              || { gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1 || { echo "❌ No se pudo crear/verificar el release $TAG" >&2; exit 1; }; }
+            echo "✓ Release $TAG creado/verificado"
+          fi
 
       - name: Upload .deb to release
         env:
