@@ -6,10 +6,11 @@ name: Build Windows
 #
 # Builda Arka para Windows x86_64 a partir del tag indicado del repo
 # privado kevynperez-dev/Arka, firma el .exe con la llave del updater, y
-# mergea la entry windows-x86_64 en el release ya existente en este repo.
+# mergea la entry windows-x86_64 en latest.json.
 #
-# Asume que el tag ya existe en kevynperez-dev/Arka y que el flujo Mac
-# (`bash scripts/ship.sh && npm run release:gh`) ya creó el release.
+# Asume que el tag ya existe en kevynperez-dev/Arka. Crea el release en
+# este repo si no existe todavía (por eso no depende de publicar primero
+# desde la Mac) y luego sube los artefactos.
 on:
   workflow_dispatch:
     inputs:
@@ -78,6 +79,23 @@ jobs:
           "exe_sig=$sig"              | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           if ($msi) {
             "msi=$($msi.FullName)"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - name: Ensure release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $tag = "${{ inputs.tag }}"
+          $repo = "${{ github.repository }}"
+          gh release view $tag --repo $repo *> $null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "→ Release $tag no existe → lo creo (tag creado automáticamente en $repo)"
+            gh release create $tag --repo $repo --title "Arka $tag" --notes "Arka $tag" --target main
+            gh release view $tag --repo $repo *> $null
+            if ($LASTEXITCODE -ne 0) { throw "No se pudo crear/verificar el release $tag" }
+          } else {
+            Write-Host "→ Release $tag ya existe"
           }
 
       - name: Upload Windows assets to release
